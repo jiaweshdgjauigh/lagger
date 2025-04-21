@@ -13,8 +13,8 @@ repeat
 
 		for i = 1, 250 do
 			local part = Instance.new("Part")
-			part.Size = Vector3.new(1, 1, 1)
 			part.Anchored = true
+			part.CFrame = 0.5
 			part.CanCollide = false
 			part.Parent = model
 			table.insert(cparts, part)
