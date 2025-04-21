@@ -14,7 +14,7 @@ repeat
 		for i = 1, 250 do
 			local part = Instance.new("Part")
 			part.Anchored = true
-			part.Transparency = 0.5
+			part.Transparency = 0
 			part.CanCollide = false
 			part.Parent = model
 			table.insert(cparts, part)
@@ -39,13 +39,15 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 	Text = "GET READY TO LAG!!!",
 	Duration = 5
 })
+wait(3)
 for _, laggr in ipairs(workspace:GetChildren()) do
 	if laggr.Name == "LAGGER" then
 		for _, part in ipairs(laggr:GetChildren()) do
 			game:GetService("RunService").Heartbeat:Connect(function()
 				local cframe = game.Workspace.CurrentCamera.CFrame
+				local offset = game.Workspace.CurrentCamera.LookVector * -3
 				for _, part in ipairs(cparts) do
-					part.CFrame = cframe
+					part.CFrame = CFrame.new(cframe + offset)
 				end
 			end)
 		end
