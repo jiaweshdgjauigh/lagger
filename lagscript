@@ -1,3 +1,4 @@
+print("v1")
 local parts = getgenv().PartAmount
 local partAmount = 0
 game:GetService("StarterGui"):SetCore("SendNotification", {
