@@ -1,4 +1,5 @@
 local parts = getgenv().PartAmount
+local partAmount = 0
 game:GetService("StarterGui"):SetCore("SendNotification", {
 	Title = "LAGGER v1",
 	Text = "executed, give the lagger some time to create parts",
@@ -15,6 +16,7 @@ repeat
 			part.Anchored = true
 			part.CanCollide = false
 			part.Parent = model
+			partAmount += 1
 			wait()
 		end
 		parts = 1
@@ -23,6 +25,7 @@ repeat
 		if modeltoclone then
 			local clone = modeltoclone:Clone()
 			clone.Parent = workspace
+			partAmount += 250
 			parts += 1
 		end
 	end
@@ -33,6 +36,13 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 	Text = "GET READY TO LAG!!!",
 	Duration = 5
 })
+game:GetService("StarterGui"):SetCore("SendNotification", {
+	Title = "LAGGER v1",
+	Text = partAmount.. " parts spawned",
+	Duration = 5
+})
+
+wait(2)
 for _, laggr in ipairs(workspace:GetChildren()) do
 	if laggr.Name == "LAGGER" then
 		for _, part in ipairs(laggr:GetChildren()) do
