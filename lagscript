@@ -14,7 +14,7 @@ repeat
 		for i = 1, 250 do
 			local part = Instance.new("Part")
 			part.Anchored = true
-			part.CFrame = 0.5
+			part.Transparency = 0.5
 			part.CanCollide = false
 			part.Parent = model
 			table.insert(cparts, part)
