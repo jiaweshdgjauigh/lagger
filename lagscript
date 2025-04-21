@@ -1,13 +1,13 @@
-print("v1")
 local parts = getgenv().PartAmount
-local partAmount = 0
+local finished = 0
+local cparts = {}
 game:GetService("StarterGui"):SetCore("SendNotification", {
 	Title = "LAGGER v1",
 	Text = "executed, give the lagger some time to create parts",
 	Duration = 5
 })
 repeat
-	if parts == 0 then
+	if finished == 0 then
 		local model = Instance.new("Model", workspace)
 		model.Name = "LAGGER"
 
@@ -17,38 +17,36 @@ repeat
 			part.Anchored = true
 			part.CanCollide = false
 			part.Parent = model
-			partAmount += 1
+			table.insert(cparts, part)
 			wait()
 		end
-		parts = 1
+		finished += 1
 	else
 		local modeltoclone = workspace:FindFirstChild("LAGGER")
 		if modeltoclone then
 			local clone = modeltoclone:Clone()
 			clone.Parent = workspace
-			partAmount += 250
-			parts += 1
+			for _, obj in ipairs(clone:GetChildren()) do
+				table.insert(cparts, obj)
+			end
+			finished += 1
 		end
 	end
 	wait()
-until parts == 10
+until finished == parts
 game:GetService("StarterGui"):SetCore("SendNotification", {
 	Title = "LAGGER v1",
 	Text = "GET READY TO LAG!!!",
 	Duration = 5
 })
-game:GetService("StarterGui"):SetCore("SendNotification", {
-	Title = "LAGGER v1",
-	Text = partAmount.. " parts spawned",
-	Duration = 5
-})
-
-wait(2)
 for _, laggr in ipairs(workspace:GetChildren()) do
 	if laggr.Name == "LAGGER" then
 		for _, part in ipairs(laggr:GetChildren()) do
 			game:GetService("RunService").Heartbeat:Connect(function()
-				part.CFrame = workspace.CurrentCamera.CFrame
+				local cframe = game.Workspace.CurrentCamera.CFrame
+				for _, part in ipairs(cparts) do
+					part.CFrame = cframe
+				end
 			end)
 		end
 	end
