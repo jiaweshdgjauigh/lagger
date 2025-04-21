@@ -1,0 +1,44 @@
+local parts = getgenv().PartAmount
+game:GetService("StarterGui"):SetCore("SendNotification", {
+	Title = "LAGGER v1",
+	Text = "executed, give the lagger some time to create parts",
+	Duration = 5
+})
+repeat
+	if parts == 0 then
+		local model = Instance.new("Model", workspace)
+		model.Name = "LAGGER"
+
+		for i = 1, 250 do
+			local part = Instance.new("Part")
+			part.Size = Vector3.new(1, 1, 1)
+			part.Anchored = true
+			part.CanCollide = false
+			part.Parent = model
+			wait()
+		end
+		parts = 1
+	else
+		local modeltoclone = workspace:FindFirstChild("LAGGER")
+		if modeltoclone then
+			local clone = modeltoclone:Clone()
+			clone.Parent = workspace
+			parts += 1
+		end
+	end
+	wait()
+until parts == 10
+game:GetService("StarterGui"):SetCore("SendNotification", {
+	Title = "LAGGER v1",
+	Text = "GET READY TO LAG!!!",
+	Duration = 5
+})
+for _, laggr in ipairs(workspace:GetChildren()) do
+	if laggr.Name == "LAGGER" then
+		for _, part in ipairs(laggr:GetChildren()) do
+			game:GetService("RunService").Heartbeat:Connect(function()
+				part.CFrame = workspace.CurrentCamera.CFrame
+			end)
+		end
+	end
+end
