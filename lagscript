@@ -1,7 +1,21 @@
-local parts = getgenv().PartAmount
-local finished = 0
-local currentExistingPartsTable = {}
+local models = getgenv().Models
+local finishedModels = 0
 local isRunning = true
+local partTable = {}
+local modelTable = {}
+local partVal = 0
+local RestartValue = 0
+game:GetService("StarterGui"):SetCore("SendNotification", {
+	Title = "Lagger v2",
+	Text = "Executed. Please give the script time to make parts.",
+	duration = 5
+})
+--[[
+working stuff:
+FPS label
+part counter
+creating parts
+]]
 local ScreenGui = Instance.new("ScreenGui")
 local Frame = Instance.new("Frame")
 local applyrestartval = Instance.new("TextButton")
@@ -78,7 +92,7 @@ settingsval.TextColor3 = Color3.fromRGB(0, 0, 0)
 settingsval.TextScaled = true
 settingsval.TextSize = 14.000
 settingsval.TextWrapped = true
-
+settingsval.Text = "models requested: ".. models
 fpslabel.Name = "fpslabel"
 fpslabel.Parent = Frame
 fpslabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -105,127 +119,103 @@ partcounter.TextColor3 = Color3.fromRGB(0, 0, 0)
 partcounter.TextScaled = true
 partcounter.TextSize = 14.000
 partcounter.TextWrapped = true
-Frame.Active = true
-Frame.Draggable = true
-local restartValNumber = 1
-restartval.FocusLost:Connect(function()
-	restartValNumber = tonumber(restartValNumber)
-end)
-local lastfps = 0
-
-for _, ui in ipairs(Frame:GetChildren()) do
+for _, ui in ipairs(ScreenGui:GetDescendants()) do
 	local uistroke = Instance.new("UIStroke", ui)
+	
 	uistroke.Thickness = 4
 	uistroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 end
 
-local runservice = game:GetService("RunService")
-runservice.RenderStepped:Connect(function(dt)
-	if isRunning == false then return end
-	local fps = math.floor(1 / dt)
-	if fps ~= lastfps then
-		fpslabel.Text = "FPS: ".. fps
-		lastfps = fps
+local fps = 1
+game:GetService("RunService").Heartbeat:Connect(function(dt)
+	local FPS = math.floor(1 / dt)
+	fps = FPS
+end)
+
+stoplag.MouseButton1Down:Connect(function()
+	for _, model in ipairs(modelTable) do
+		model:Destroy()
+		table.clear(modelTable)
 	end
 end)
 
-applyrestartval.MouseButton1Down:Connect(function()
-	--getgenv().PartAmount = restartValNumber
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/jiaweshdgjauigh/lagger/refs/heads/main/lagscript"))()
-	
-	for _, lagger in ipairs(game.Workspace:GetChildren()) do
-		if lagger.Name == "LAGGER" then
-			lagger:Destroy()
-		end
-	end
-	isRunning = false
-	ScreenGui:Destroy()
-end)
 
-local currentExistingParts = 0
-
-while wait() do
-	for _, obj in ipairs(game.Workspace:GetChildren()) do
-		if obj.Name == "LAGGER" then
-			for _, part in ipairs(obj:GetChildren()) do
-				if not table.find(currentExistingPartsTable, part) then
-					currentExistingParts += 1
-					table.insert(currentExistingPartsTable, part)
-				end
-			end
-		end
-	end
-	
-	partcounter.Text = "Parts: ".. currentExistingParts
-	if isRunning == false then break end
-end
-
-game.Workspace.ChildRemoved:Connect(function(obj)
-	if isRunning == false then return end
-	
-	if obj.Name == "LAGGER" then
-		for _, part in ipairs(obj:GetChildren()) do
-			if table.find(currentExistingPartsTable, part) then
-				table.remove(currentExistingPartsTable, part)
-				currentExistingParts -= 1
-			end
-		end
-	end
-end)
-
-settingsval.Text = "settings: ".. parts.. " models"
-
-
-game:GetService("StarterGui"):SetCore("SendNotification", {
-	Title = "LAGGER v1",
-	Text = "executed, give the lagger some time to create parts",
-	Duration = 5
-})
 repeat
-	if finished == 0 then
-		local model = Instance.new("Model", workspace)
+	if finishedModels == 0 then
+		local model  = Instance.new("Model", game.Workspace)
 		model.Name = "LAGGER"
-
+		table.insert(modelTable, model)
 		for i = 1, 250 do
-			local part = Instance.new("Part")
-			part.Anchored = true
-			part.Transparency = 0
+			local part = Instance.new("Part", model)
 			part.CanCollide = false
-			part.Parent = model
-			table.insert(currentExistingPartsTable, part)
+			part.Anchored = true
+			part.Reflectance = 1
+			part.CastShadow = false
+			table.insert(partTable, part)
+			partVal += 1
 			wait()
 		end
-		finished += 1
-	else
-		local modeltoclone = workspace:FindFirstChild("LAGGER")
-		if modeltoclone then
-			local clone = modeltoclone:Clone()
-			clone.Parent = workspace
-			for _, obj in ipairs(clone:GetChildren()) do
-				table.insert(currentExistingPartsTable, obj)
+		model.ChildRemoved:Connect(function(part)
+			local index = table.find(partTable, part)
+			if index then
+				partVal -= 1
+				table.remove(partTable, index)
 			end
-			finished += 1
+		end)
+		finishedModels += 1
+	elseif finishedModels > 0 then
+		local model = game.Workspace:FindFirstChild("LAGGER")
+		if model then
+			local clone = model:Clone()
+			clone.Parent = game.Workspace
+			table.insert(modelTable, model)
+			clone.ChildRemoved:Connect(function(obj)
+				if table.find(partTable, obj) then
+					partVal -= 1
+					table.remove(partTable, obj)
+				end
+			end)
+			finishedModels += 1
 		end
 	end
 	wait()
-until finished == parts
+until finishedModels == models
+
 game:GetService("StarterGui"):SetCore("SendNotification", {
-	Title = "LAGGER v1",
-	Text = "GET READY TO LAG!!!",
-	Duration = 5
+	Title = "Lagger v2",
+	Text = "3 seconds before lag!",
+	duration = 3
 })
 wait(3)
-for _, laggr in ipairs(workspace:GetChildren()) do
-	if laggr.Name == "LAGGER" then
-		for _, part in ipairs(laggr:GetChildren()) do
-			game:GetService("RunService").Heartbeat:Connect(function()
-				if isRunning == false then return end
-				local cframe = game.Workspace.CurrentCamera.CFrame
-				local offset = game.Workspace.CurrentCamera.CFrame.LookVector * -3
-				for _, part in ipairs(currentExistingPartsTable) do
-					part.CFrame = CFrame.new(cframe + offset)
-				end
-			end)
-		end
+
+game:GetService("RunService").Stepped:Connect(function()
+	if isRunning == false then return end
+	local cam = game.Workspace.CurrentCamera
+	local camCf = cam.CFrame
+	local offset = camCf.LookVector * -3
+	for _, part in ipairs(partTable) do
+		part.CFrame = CFrame.new(camCf.Position + offset)
 	end
+end)
+
+restartval.FocusLost:Connect(function()
+	RestartValue = tonumber(restartval.Text) or 1
+end)
+
+applyrestartval.MouseButton1Down:Connect(function()
+	for _, model in ipairs(modelTable) do
+		model:Destroy()
+		table.clear(modelTable)
+	end
+	getgenv().Models = RestartValue
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/jiaweshdgjauigh/lagger/refs/heads/main/lagscript"))();
+end)
+
+
+
+while wait(0.5) do
+	if isRunning == false then break end
+	fpslabel.Text = "FPS: ".. fps
+	partcounter.Text = "Parts: ".. partVal
 end
+
