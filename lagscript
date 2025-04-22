@@ -1,21 +1,15 @@
 local parts = getgenv().PartAmount
 local finished = 0
-local cparts = {}
-
---[[
-my plan:
-1. add part counters
-2. no need to reload script to use again, but instead add a restart button
-3. show FPS for those that dont know how to check their fps
-4. send notification by how much the FPS has dropped
-5. customise the value (once a button is pressed it will re-execute the script with the given value)
-6. if script will be re-executed, destroy all current lag parts and the script
-
-]]
-
+local currentExistingPartsTable = {}
+local isRunning = true
 local ScreenGui = Instance.new("ScreenGui")
 local Frame = Instance.new("Frame")
-local TextButton = Instance.new("TextButton")
+local applyrestartval = Instance.new("TextButton")
+local stoplag = Instance.new("TextButton")
+local restartval = Instance.new("TextBox")
+local settingsval = Instance.new("TextLabel")
+local fpslabel = Instance.new("TextLabel")
+local partcounter = Instance.new("TextLabel")
 
 --Properties:
 
@@ -25,42 +19,162 @@ Frame.Parent = ScreenGui
 Frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 Frame.BorderSizePixel = 0
-Frame.Position = UDim2.new(0.0245936699, 0, 0.651947141, 0)
-Frame.Size = UDim2.new(0, 256, 0, 133)
+Frame.Position = UDim2.new(0.631337643, 0, 0.480273187, 0)
+Frame.Size = UDim2.new(0, 256, 0, 263)
 
-TextButton.Parent = Frame
-TextButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
-TextButton.BorderSizePixel = 0
-TextButton.Position = UDim2.new(0.107498527, 0, 0.310847908, 0)
-TextButton.Size = UDim2.new(0, 200, 0, 50)
-TextButton.Font = Enum.Font.SourceSans
-TextButton.Text = "stop lag"
-TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-TextButton.TextScaled = true
-TextButton.TextSize = 14.000
-TextButton.TextWrapped = true
-local uistroke1 = Instance.new("UIStroke", Frame)
-uistroke1.Thickness = 3
-uistroke1.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-local uistroke2 = Instance.new("UIStroke", TextButton)
-uistroke2.Thickness = 3
-uistroke2.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+applyrestartval.Name = "applyrestartval"
+applyrestartval.Parent = Frame
+applyrestartval.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+applyrestartval.BorderColor3 = Color3.fromRGB(0, 0, 0)
+applyrestartval.BorderSizePixel = 0
+applyrestartval.Position = UDim2.new(0.107498646, 0, 0.642001987, 0)
+applyrestartval.Size = UDim2.new(0, 200, 0, 30)
+applyrestartval.Font = Enum.Font.SourceSans
+applyrestartval.Text = "apply changes"
+applyrestartval.TextColor3 = Color3.fromRGB(0, 0, 0)
+applyrestartval.TextScaled = true
+applyrestartval.TextSize = 14.000
+applyrestartval.TextWrapped = true
+
+stoplag.Name = "stoplag"
+stoplag.Parent = Frame
+stoplag.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+stoplag.BorderColor3 = Color3.fromRGB(0, 0, 0)
+stoplag.BorderSizePixel = 0
+stoplag.Position = UDim2.new(0.107498646, 0, 0.828598082, 0)
+stoplag.Size = UDim2.new(0, 200, 0, 30)
+stoplag.Font = Enum.Font.SourceSans
+stoplag.Text = "stop lag"
+stoplag.TextColor3 = Color3.fromRGB(0, 0, 0)
+stoplag.TextScaled = true
+stoplag.TextSize = 14.000
+stoplag.TextWrapped = true
+
+restartval.Name = "restartval"
+restartval.Parent = Frame
+restartval.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+restartval.BorderColor3 = Color3.fromRGB(0, 0, 0)
+restartval.BorderSizePixel = 0
+restartval.Position = UDim2.new(0.10546875, 0, 0.471482903, 0)
+restartval.Size = UDim2.new(0, 200, 0, 32)
+restartval.Font = Enum.Font.SourceSans
+restartval.PlaceholderColor3 = Color3.fromRGB(0, 0, 0)
+restartval.PlaceholderText = "new lag value here"
+restartval.Text = ""
+restartval.TextColor3 = Color3.fromRGB(0, 0, 0)
+restartval.TextScaled = true
+restartval.TextSize = 14.000
+restartval.TextWrapped = true
+
+settingsval.Name = "settingsval"
+settingsval.Parent = Frame
+settingsval.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+settingsval.BorderColor3 = Color3.fromRGB(0, 0, 0)
+settingsval.BorderSizePixel = 0
+settingsval.Position = UDim2.new(0.109375, 0, 0.292775661, 0)
+settingsval.Size = UDim2.new(0, 200, 0, 32)
+settingsval.Font = Enum.Font.SourceSans
+settingsval.TextColor3 = Color3.fromRGB(0, 0, 0)
+settingsval.TextScaled = true
+settingsval.TextSize = 14.000
+settingsval.TextWrapped = true
+
+fpslabel.Name = "fpslabel"
+fpslabel.Parent = Frame
+fpslabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+fpslabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+fpslabel.BorderSizePixel = 0
+fpslabel.Position = UDim2.new(0.109375, 0, 0.0608365014, 0)
+fpslabel.Size = UDim2.new(0, 200, 0, 32)
+fpslabel.Font = Enum.Font.SourceSans
+fpslabel.Text = "FPS: "
+fpslabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+fpslabel.TextScaled = true
+fpslabel.TextSize = 14.000
+fpslabel.TextWrapped = true
+
+partcounter.Name = "partcounter"
+partcounter.Parent = Frame
+partcounter.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+partcounter.BorderColor3 = Color3.fromRGB(0, 0, 0)
+partcounter.BorderSizePixel = 0
+partcounter.Position = UDim2.new(0.109375, 0, 0.182509512, 0)
+partcounter.Size = UDim2.new(0, 200, 0, 32)
+partcounter.Font = Enum.Font.SourceSans
+partcounter.TextColor3 = Color3.fromRGB(0, 0, 0)
+partcounter.TextScaled = true
+partcounter.TextSize = 14.000
+partcounter.TextWrapped = true
 Frame.Active = true
 Frame.Draggable = true
-TextButton.MouseButton1Down:Connect(function()
-	for _, part in ipairs(cparts) do
-		table.clear(cparts)
+local restartValNumber = 1
+restartval.FocusLost:Connect(function()
+	restartValNumber = tonumber(restartValNumber)
+end)
+local lastfps = 0
+
+for _, ui in ipairs(Frame:GetChildren()) do
+	local uistroke = Instance.new("UIStroke", ui)
+	uistroke.Thickness = 4
+	uistroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+end
+
+local runservice = game:GetService("RunService")
+runservice.RenderStepped:Connect(function(dt)
+	if isRunning == false then return end
+	local fps = math.floor(1 / dt)
+	if fps ~= lastfps then
+		fpslabel.Text = "FPS: ".. fps
+		lastfps = fps
 	end
+end)
+
+applyrestartval.MouseButton1Down:Connect(function()
+	--getgenv().PartAmount = restartValNumber
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/jiaweshdgjauigh/lagger/refs/heads/main/lagscript"))()
+	
 	for _, lagger in ipairs(game.Workspace:GetChildren()) do
 		if lagger.Name == "LAGGER" then
 			lagger:Destroy()
 		end
 	end
-	game:GetService("StarterGui"):SetCore("SendNotification", {Title = "LAGGER v1", Text = "Deleted all parts! Re-execute to use again", Duration = 5})
-	wait(5)
-	TextButton.Parent.Parent:Destroy()
+	isRunning = false
+	ScreenGui:Destroy()
 end)
+
+local currentExistingParts = 0
+
+while wait() do
+	for _, obj in ipairs(game.Workspace:GetChildren()) do
+		if obj.Name == "LAGGER" then
+			for _, part in ipairs(obj:GetChildren()) do
+				if not table.find(currentExistingPartsTable, part) then
+					currentExistingParts += 1
+					table.insert(currentExistingPartsTable, part)
+				end
+			end
+		end
+	end
+	
+	partcounter.Text = "Parts: ".. currentExistingParts
+	if isRunning == false then break end
+end
+
+game.Workspace.ChildRemoved:Connect(function(obj)
+	if isRunning == false then return end
+	
+	if obj.Name == "LAGGER" then
+		for _, part in ipairs(obj:GetChildren()) do
+			if table.find(currentExistingPartsTable, part) then
+				table.remove(currentExistingPartsTable, part)
+				currentExistingParts -= 1
+			end
+		end
+	end
+end)
+
+settingsval.Text = "settings: ".. parts.. " models"
+
 
 game:GetService("StarterGui"):SetCore("SendNotification", {
 	Title = "LAGGER v1",
@@ -78,7 +192,7 @@ repeat
 			part.Transparency = 0
 			part.CanCollide = false
 			part.Parent = model
-			table.insert(cparts, part)
+			table.insert(currentExistingPartsTable, part)
 			wait()
 		end
 		finished += 1
@@ -88,7 +202,7 @@ repeat
 			local clone = modeltoclone:Clone()
 			clone.Parent = workspace
 			for _, obj in ipairs(clone:GetChildren()) do
-				table.insert(cparts, obj)
+				table.insert(currentExistingPartsTable, obj)
 			end
 			finished += 1
 		end
@@ -105,9 +219,10 @@ for _, laggr in ipairs(workspace:GetChildren()) do
 	if laggr.Name == "LAGGER" then
 		for _, part in ipairs(laggr:GetChildren()) do
 			game:GetService("RunService").Heartbeat:Connect(function()
+				if isRunning == false then return end
 				local cframe = game.Workspace.CurrentCamera.CFrame
 				local offset = game.Workspace.CurrentCamera.CFrame.LookVector * -3
-				for _, part in ipairs(cparts) do
+				for _, part in ipairs(currentExistingPartsTable) do
 					part.CFrame = CFrame.new(cframe + offset)
 				end
 			end)
