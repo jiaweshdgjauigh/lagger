@@ -1,10 +1,15 @@
-local models = getgenv().Models
+local models = 3
 local finishedModels = 0
 local isRunning = true
 local partTable = {}
 local modelTable = {}
 local partVal = 0
 local RestartValue = 0
+game:GetService("StarterGui"):SetCore("SendNotification", {
+	Title = "Lagger v2",
+	Text = "Developed by ChatColours with the help of my friend carp",
+	duration = 3
+})
 game:GetService("StarterGui"):SetCore("SendNotification", {
 	Title = "Lagger v2",
 	Text = "Executed. Please give the script time to make parts.",
@@ -35,7 +40,8 @@ Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 Frame.BorderSizePixel = 0
 Frame.Position = UDim2.new(0.631337643, 0, 0.480273187, 0)
 Frame.Size = UDim2.new(0, 256, 0, 263)
-
+Frame.Active = true
+Frame.Draggable = true
 applyrestartval.Name = "applyrestartval"
 applyrestartval.Parent = Frame
 applyrestartval.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -142,39 +148,27 @@ end)
 
 repeat
 	if finishedModels == 0 then
-		local model  = Instance.new("Model", game.Workspace)
+		local model = Instance.new("Model", workspace)
 		model.Name = "LAGGER"
-		table.insert(modelTable, model)
-		for i = 1, 250 do
-			local part = Instance.new("Part", model)
-			part.CanCollide = false
+
+		for i = 1, 750 do
+			local part = Instance.new("Part")
 			part.Anchored = true
-			part.Reflectance = 1
-			part.CastShadow = false
+			part.Transparency = 0
+			part.CanCollide = false
+			part.Parent = model
 			table.insert(partTable, part)
-			partVal += 1
 			wait()
 		end
-		model.ChildRemoved:Connect(function(part)
-			local index = table.find(partTable, part)
-			if index then
-				partVal -= 1
-				table.remove(partTable, index)
-			end
-		end)
 		finishedModels += 1
-	elseif finishedModels > 0 then
-		local model = game.Workspace:FindFirstChild("LAGGER")
-		if model then
-			local clone = model:Clone()
-			clone.Parent = game.Workspace
-			table.insert(modelTable, model)
-			clone.ChildRemoved:Connect(function(obj)
-				if table.find(partTable, obj) then
-					partVal -= 1
-					table.remove(partTable, obj)
-				end
-			end)
+	else
+		local modeltoclone = workspace:FindFirstChild("LAGGER")
+		if modeltoclone then
+			local clone = modeltoclone:Clone()
+			clone.Parent = workspace
+			for _, obj in ipairs(clone:GetChildren()) do
+				table.insert(partTable, obj)
+			end
 			finishedModels += 1
 		end
 	end
@@ -187,16 +181,20 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
 	duration = 3
 })
 wait(3)
+for _, part in ipairs(game.Workspace:GetChildren()) do
+	if part.Name == "LAGGER" then
+		for _, obj in ipairs(part:GetChildren()) do
+		game:GetService("RunService").Heartbeat:Connect(function()
+		if isRunning == false then return end
+		local cam = game.Workspace.CurrentCamera
+		local camCf = cam.CFrame
+		local offset = camCf.LookVector * -3
 
-game:GetService("RunService").Stepped:Connect(function()
-	if isRunning == false then return end
-	local cam = game.Workspace.CurrentCamera
-	local camCf = cam.CFrame
-	local offset = camCf.LookVector * -3
-	for _, part in ipairs(partTable) do
 		part.CFrame = CFrame.new(camCf.Position + offset)
+		end)
+		end
 	end
-end)
+end
 
 restartval.FocusLost:Connect(function()
 	RestartValue = tonumber(restartval.Text) or 1
@@ -218,4 +216,5 @@ while wait(0.5) do
 	fpslabel.Text = "FPS: ".. fps
 	partcounter.Text = "Parts: ".. partVal
 end
+
 
