@@ -39,7 +39,7 @@ uistroke2.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
 TextButton.MouseButton1Down:Connect(function()
 	for _, part in ipairs(cparts) do
-		table.remove(cparts, part)
+		table.clear(cparts)
 	end
 	for _, lagger in ipairs(game.Workspace:GetChildren()) do
 		if lagger.Name == "LAGGER" then
@@ -95,7 +95,7 @@ for _, laggr in ipairs(workspace:GetChildren()) do
 		for _, part in ipairs(laggr:GetChildren()) do
 			game:GetService("RunService").Heartbeat:Connect(function()
 				local cframe = game.Workspace.CurrentCamera.CFrame
-				local offset = game.Workspace.CurrentCamera.LookVector * -3
+				local offset = game.Workspace.CurrentCamera.CFrame.LookVector * -3
 				for _, part in ipairs(cparts) do
 					part.CFrame = CFrame.new(cframe + offset)
 				end
