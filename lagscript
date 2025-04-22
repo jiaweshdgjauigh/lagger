@@ -1,4 +1,4 @@
-local models = 3
+local models = getgenv().Models
 local finishedModels = 0
 local isRunning = true
 local partTable = {}
