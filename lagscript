@@ -214,7 +214,7 @@ end)
 while wait(0.5) do
 	if isRunning == false then break end
 	fpslabel.Text = "FPS: ".. fps
-	partcounter.Text = "Parts: ".. partVal
+	partcounter.Text = "Parts: ".. 250 * models
 end
 
 
