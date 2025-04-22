@@ -40,7 +40,11 @@ uistroke2.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 TextButton.MouseButton1Down:Connect(function()
 	for _, part in ipairs(cparts) do
 		table.remove(cparts, part)
-		part:Destroy()
+	end
+	for _, lagger in ipairs(game.Workspace:GetChildren()) do
+		if lagger.Name == "LAGGER" then
+			lagger:Destroy()
+		end
 	end
 	game:GetService("StarterGui"):SetCore("SendNotification", {Title = "LAGGER v1", Text = "Deleted all parts! Re-execute to use again", Duration = 5})
 	wait(5)
